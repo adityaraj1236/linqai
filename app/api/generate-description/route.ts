@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
     const fullPrompt = `${system_prompt}\n\nProduct Details:\n${user_message}\n\nWrite one compelling marketing paragraph.`;
 
-    const parts = [
+    const parts: any[] = [
       { text: fullPrompt }
     ];
     
