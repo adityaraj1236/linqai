@@ -1,0 +1,71 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Saved Workflows ──────────────────────────────────────────
+model Workflow {
+  id          String   @id @default(cuid())
+  name        String   @default("Untitled Workflow")
+  description String?
+  userId      String   // Clerk user ID
+  nodes       Json     // ReactFlow nodes array
+  edges       Json     // ReactFlow edges array
+  thumbnail   String?  // base64 or URL of workflow screenshot
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  runs WorkflowRun[]
+
+  @@index([userId])
+}
+
+// ── Workflow Run History ─────────────────────────────────────
+model WorkflowRun {
+  id         String   @id @default(cuid())
+  workflowId String?  // nullable — for unsaved workflows
+  userId     String
+  status     RunStatus @default(RUNNING)
+  startedAt  DateTime  @default(now())
+  completedAt DateTime?
+  totalMs    Int?      // total execution time in ms
+
+  workflow   Workflow? @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  nodeRuns   NodeRun[]
+
+  @@index([userId])
+  @@index([workflowId])
+}
+
+// ── Node Execution Detail ────────────────────────────────────
+model NodeRun {
+  id          String      @id @default(cuid())
+  runId       String
+  nodeId      String      // ReactFlow node id
+  nodeLabel   String
+  nodeType    String
+  status      RunStatus   @default(RUNNING)
+  inputs      Json?       // serialized inputs
+  output      String?     // truncated output string
+  errorMsg    String?
+  startedAt   DateTime    @default(now())
+  completedAt DateTime?
+  durationMs  Int?
+
+  run WorkflowRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+}
+
+enum RunStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  SKIPPED
+}
