@@ -14,7 +14,7 @@ export default function LandingPage() {
               <div className="w-8 h-8 bg-violet-600 rounded flex items-center justify-center">
                 <Layers className="w-5 h-5" />
               </div>
-              <span className="text-xl font-bold text-white">Weavy</span>
+              <span className="text-xl font-bold text-white">Linq</span>
             </div>
             
             <div className="flex items-center gap-4">
